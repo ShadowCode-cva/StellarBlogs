@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Blog | Discover & Share Stories</title>
+    <meta name="description" content="A premium blog platform built with Flask and MongoDB. Explore insightful stories and engage with a global community.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">STELLAR.</div>
+        <div class="nav-links">
+            <a href="/">Explore</a>
+            <div id="auth-links">
+                <button onclick="openModal('login-modal')">Login</button>
+                <button onclick="openModal('signup-modal')" class="btn-primary">Sign Up</button>
+            </div>
+            <div id="user-links" style="display: none;">
+                <span id="welcome-text"></span>
+                <button onclick="openFavorites()">⭐ My Favorites</button>
+                <button onclick="openModal('create-blog-modal')" id="author-btn" style="display: none;">Create Post</button>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="home-view">
+        <header class="hero">
+            <h1>Insights that matter.</h1>
+            <p>A space for creators, thinkers, and explorers. Join our community and share your story with the world.</p>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search articles, tags, authors..." onkeyup="handleSearch(event)">
+            </div>
+        </header>
+
+        <main class="blog-grid" id="blog-container">
+            <!-- Blogs will be injected here -->
+            <div class="loading">Fetching latest stories...</div>
+        </main>
+    </div>
+
+    <div id="favorites-view" style="display: none; padding: 4rem 5%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+            <h1>My Favorites</h1>
+            <button onclick="showView('home')" class="btn-primary">← Back to Explore</button>
+        </div>
+        <div class="blog-grid" id="favorites-container">
+            <!-- Favorites will be injected here -->
+        </div>
+    </div>
+
+    <!-- Auth Modals -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login</h2>
+                <span class="close-btn" onclick="closeModal('login-modal')">&times;</span>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-container">
+                        <input type="password" name="password" id="signup-password" required>
+                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('signup-password', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Join Stellar</h2>
+                <span class="close-btn" onclick="closeModal('signup-modal')">&times;</span>
+            </div>
+            <form id="signup-form" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-container">
+                        <input type="password" name="password" id="login-password" required>
+                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('login-password', this)"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role">
+                        <option value="user">Reader</option>
+                        <option value="author">Author</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="create-blog-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Post</h2>
+                <span class="close-btn" onclick="closeModal('create-blog-modal')">&times;</span>
+            </div>
+            <form id="blog-form" onsubmit="handleCreateBlog(event)">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea name="content" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Tags (comma separated)</label>
+                    <input type="text" name="tags" placeholder="tech, lifestyle, tutorial">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Publish Article</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="blog-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('blog-detail-modal')"><i class="fas fa-times"></i></span>
+            
+            <div id="detail-body">
+                <h1 id="detail-title">Loading...</h1>
+                <div class="blog-meta">
+                    <span id="detail-author"><i class="fas fa-user-circle"></i> By Author</span>
+                    <span id="detail-date"><i class="fas fa-calendar-alt"></i> Date</span>
+                </div>
+                <div id="detail-content" style="margin: 2.5rem 0; font-size: 1.15rem; line-height: 1.8; color: #e2e8f0;"></div>
+                
+                <div class="detail-actions" style="display: flex; gap: 1.5rem; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+                    <button id="like-btn" style="background: rgba(244, 63, 94, 0.1); border: 1px solid var(--accent); color: var(--accent);"><i class="fas fa-heart"></i> Like (<span id="like-count">0</span>)</button>
+                    <button id="fav-btn" style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); color: var(--primary);"><i class="fas fa-bookmark"></i> Favorite</button>
+                </div>
+
+                <div class="comment-section" style="margin-top: 4rem;">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 2rem;">Community Discussion</h3>
+                    <div id="comment-form-container" style="display: none; margin-bottom: 3rem;">
+                        <textarea id="main-comment-input" placeholder="What are your thoughts?" rows="3" style="border-radius: 18px;"></textarea>
+                        <button onclick="handleAddComment()" class="btn-primary" style="margin-top: 1rem; width: auto;">Post Thought</button>
+                    </div>
+                    <div id="comments-display">
+                        <!-- Comments will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
