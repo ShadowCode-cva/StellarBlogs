@@ -1,10 +1,11 @@
 // Stellar Blog - Frontend State
-const API_URL = '/api';
+const API_URL = '/api/v1';
 let state = {
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
     blogs: [],
-    isSearching: false
+    isSearching: false,
+    blogsLoaded: false
 };
 
 // Initialize app
@@ -81,13 +82,16 @@ function renderBlogs() {
     
     if (!state.blogs || state.blogs.length === 0) {
         if (state.isSearching) {
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><h3>No stories found matching your criteria.</h3></div>';
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 6rem 2rem;"><h2 style="font-size: 1.8rem; margin-bottom: 1rem;">No stories found</h2><p style="color: var(--text-muted); font-size: 1.1rem;">Try adjusting your search or explore different topics.</p></div>';
+        } else if (!state.blogsLoaded) {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><div style="display: inline-block; width: 40px; height: 40px; border: 3px solid var(--primary-glow); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 1.5rem; color: var(--text-muted);">Loading stories...</p></div>';
         } else {
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><h3>Loading your stories...</h3></div>';
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 6rem 2rem;"><h2 style="font-size: 1.8rem; margin-bottom: 1rem;">No stories yet</h2><p style="color: var(--text-muted); font-size: 1.1rem;">Be the first to share your insights. Create a post to get started!</p></div>';
         }
         return;
     }
 
+    state.blogsLoaded = true;
     container.innerHTML = state.blogs.map(blog => `
         <article class="blog-card" onclick="viewBlog('${blog._id}')">
             <div class="blog-meta">

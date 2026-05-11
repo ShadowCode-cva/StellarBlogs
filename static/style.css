@@ -280,6 +280,20 @@ input, textarea, select {
     display: flex;
     gap: 1.5rem;
     font-weight: 600;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tag {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary) 0%, rgba(99, 102, 241, 0.6) 100%);
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    font-weight: 700;
 }
 
 #detail-title {
@@ -333,7 +347,42 @@ input, textarea, select {
 .toast.error { border-color: var(--accent); }
 .toast.success { border-color: var(--primary); }
 
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 @keyframes toastUp {
     from { transform: translateY(100px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.5rem; }
+    
+    .hero p { font-size: 1rem; }
+    
+    .blog-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem 4% 4rem;
+        gap: 1.5rem;
+    }
+    
+    nav {
+        padding: 1rem 4%;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .logo {
+        font-size: 1.3rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 2rem;
+    }
 }
