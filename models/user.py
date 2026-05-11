@@ -3,10 +3,16 @@ from bson import ObjectId
 
 class UserModel:
     def __init__(self, db):
-        self.collection = db['users']
-        # Ensure unique email and username
-        self.collection.create_index('email', unique=True)
-        self.collection.create_index('username', unique=True)
+        if db is None:
+            self.collection = None
+        else:
+            self.collection = db['users']
+            # Ensure unique email and username
+            try:
+                self.collection.create_index('email', unique=True)
+                self.collection.create_index('username', unique=True)
+            except Exception as e:
+                pass  # Index creation failed, but collection is available
 
     def create_user(self, user_data):
         user_data['created_at'] = datetime.utcnow()

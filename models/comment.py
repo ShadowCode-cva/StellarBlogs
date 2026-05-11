@@ -3,7 +3,10 @@ from bson import ObjectId
 
 class CommentModel:
     def __init__(self, db):
-        self.collection = db['comments']
+        if db is None:
+            self.collection = None
+        else:
+            self.collection = db['comments']
 
     def create_comment(self, comment_data):
         comment_data['created_at'] = datetime.utcnow()

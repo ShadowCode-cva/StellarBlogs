@@ -3,13 +3,19 @@ from bson import ObjectId
 
 class BlogModel:
     def __init__(self, db):
-        self.collection = db['blogs']
-        # Create text index for search
-        self.collection.create_index([
-            ('title', 'text'),
-            ('content', 'text'),
-            ('tags', 'text')
-        ])
+        if db is None:
+            self.collection = None
+        else:
+            self.collection = db['blogs']
+            # Create text index for search
+            try:
+                self.collection.create_index([
+                    ('title', 'text'),
+                    ('content', 'text'),
+                    ('tags', 'text')
+                ])
+            except Exception as e:
+                pass  # Index creation failed, but collection is available
 
     def search_blogs(self, query, skip=0, limit=10):
         regex_query = {'$regex': query, '$options': 'i'}
