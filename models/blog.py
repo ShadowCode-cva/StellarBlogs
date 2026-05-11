@@ -28,7 +28,9 @@ class BlogModel:
         }).sort('created_at', -1).skip(skip).limit(limit))
 
     def find_by_author(self, author_id, skip=0, limit=10):
-        return list(self.collection.find({'author_id': ObjectId(author_id)}).sort('created_at', -1).skip(skip).limit(limit))
+        # Convert author_id to string for comparison since it's stored as string
+        author_id_str = str(author_id)
+        return list(self.collection.find({'author_id': author_id_str}).sort('created_at', -1).skip(skip).limit(limit))
 
     def find_by_tag(self, tag, skip=0, limit=10):
         return list(self.collection.find({'tags': tag}).sort('created_at', -1).skip(skip).limit(limit))

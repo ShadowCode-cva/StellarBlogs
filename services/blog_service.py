@@ -29,7 +29,7 @@ class BlogService:
         blog_data = {
             'title': title,
             'content': content,
-            'author_id': author_id,
+            'author_id': str(author_id),  # Ensure author_id is stored as string
             'tags': data.get('tags', [])
         }
         
