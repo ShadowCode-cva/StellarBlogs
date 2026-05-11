@@ -9,3 +9,7 @@
 2026-05-11 03:22:43,662 INFO: Connected to MongoDB successfully! [in /vercel/share/v0-project/app.py:60]
 2026-05-11 03:22:44,891 INFO: Blog indexes created successfully [in /vercel/share/v0-project/app.py:76]
 2026-05-11 03:22:45,615 INFO: User indexes created successfully [in /vercel/share/v0-project/app.py:85]
+2026-05-11 03:27:06,468 INFO: StellarBlogs startup [in /vercel/share/v0-project/app.py:46]
+2026-05-11 03:27:08,620 INFO: Connected to MongoDB successfully! [in /vercel/share/v0-project/app.py:60]
+2026-05-11 03:27:09,873 INFO: Blog indexes created successfully [in /vercel/share/v0-project/app.py:76]
+2026-05-11 03:27:10,608 INFO: User indexes created successfully [in /vercel/share/v0-project/app.py:85]
