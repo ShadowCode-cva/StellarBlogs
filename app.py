@@ -10,7 +10,11 @@ from logging.handlers import RotatingFileHandler
 import os
 
 def create_app():
-    app = Flask(__name__)
+    # Get the base directory
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    template_folder = os.path.join(basedir, 'templates')
+    
+    app = Flask(__name__, template_folder=template_folder)
     
     # Load configuration
     app.config.from_object(Config)
@@ -95,7 +99,15 @@ def create_app():
 
     @app.route('/')
     def index():
-        return render_template('index.html')
+        try:
+            return render_template('index.html')
+        except Exception as e:
+            app.logger.error(f"Error rendering index: {e}")
+            return jsonify({
+                "message": "StellarBlogs API",
+                "version": app.config['API_VERSION'],
+                "status": "running"
+            }), 200
 
     # Add Security Headers middleware
     @app.after_request
