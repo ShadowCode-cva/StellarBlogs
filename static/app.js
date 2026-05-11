@@ -21,6 +21,24 @@ function initializeState() {
 let state = initializeState();
 
 // Initialize app
+// Global modal functions - must be defined before DOMContentLoaded
+window.openModal = (id) => {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.style.display = 'flex';
+        console.log("[v0] openModal:", id, "displayed");
+    }
+};
+
+window.closeModal = (id) => {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.style.display = 'none';
+        console.log("[v0] closeModal:", id, "hidden");
+    }
+};
+
+// Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     fetchBlogs();
@@ -34,9 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (view === 'home') fetchBlogs();
         if (view === 'my-works') fetchMyWorks();
     };
-
-    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
     // Close modals on outside click
     window.onclick = (event) => {
