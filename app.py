@@ -39,16 +39,20 @@ def create_app():
     
     # Setup Advanced Logging
     if not app.debug:
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
-        file_handler = RotatingFileHandler('logs/stellarblogs.log', 
-                                           maxBytes=10240000, 
-                                           backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-        ))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
+        try:
+            if not os.path.exists('logs'):
+                os.mkdir('logs')
+            file_handler = RotatingFileHandler('logs/stellarblogs.log', 
+                                               maxBytes=10240000, 
+                                               backupCount=10)
+            file_handler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            ))
+            file_handler.setLevel(logging.INFO)
+            app.logger.addHandler(file_handler)
+        except Exception as e:
+            # Skip file logging if logs directory can't be created (e.g., on Vercel)
+            app.logger.warning(f"Could not setup file logging: {e}")
     
     app.logger.setLevel(logging.INFO)
     app.logger.info('StellarBlogs startup')
