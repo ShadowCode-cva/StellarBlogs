@@ -144,14 +144,8 @@ def create_app():
 
     return app
 
-try:
-    app = create_app()
-except Exception as e:
-    import sys
-    print(f"Error creating app: {e}", file=sys.stderr)
-    import traceback
-    traceback.print_exc()
-    raise
+
+app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
