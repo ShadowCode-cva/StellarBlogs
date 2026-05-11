@@ -8,10 +8,6 @@ from utils.ratelimit import limiter
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-import sys
-
-# Log import status for debugging
-print("[v0] Starting app import", file=sys.stderr)
 
 def create_app():
     # Get the base directory
@@ -144,25 +140,16 @@ def create_app():
     # Health check endpoint
     @app.route('/api/v1/health', methods=['GET'])
     def health():
-        try:
-            return jsonify({
-                'status': 'healthy',
-                'service': 'StellarBlogs API',
-                'version': app.config['API_VERSION']
-            }), 200
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-    
-    # Debug endpoint
-    @app.route('/test', methods=['GET'])
-    def test():
-        return jsonify({'message': 'App is running'}), 200
+        return jsonify({
+            'status': 'healthy',
+            'service': 'StellarBlogs API',
+            'version': app.config['API_VERSION']
+        }), 200
 
     return app
 
 
 app = create_app()
-print("[v0] App created successfully", file=sys.stderr)
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
