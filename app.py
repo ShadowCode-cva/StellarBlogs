@@ -64,21 +64,34 @@ def create_app():
         
         # Blog indexes
         if 'blogs' in db.list_collection_names():
-            db.blogs.create_index('author_id')
-            db.blogs.create_index('created_at')
-            db.blogs.create_index([('title', 'text'), ('content', 'text')])  # Text search index
-            db.blogs.create_index('tags')
+            try:
+                db.blogs.create_index('author_id')
+                db.blogs.create_index('created_at')
+                db.blogs.create_index('tags')
+                # Text search index - skip if it already exists
+                try:
+                    db.blogs.create_index([('title', 'text'), ('content', 'text')])
+                except Exception:
+                    pass  # Index already exists
+                app.logger.info("Blog indexes created successfully")
+            except Exception as e:
+                app.logger.warning(f"Some blog indexes already exist: {e}")
         
         # User indexes
         if 'users' in db.list_collection_names():
-            db.users.create_index('email', unique=True)
-            db.users.create_index('username', unique=True)
+            try:
+                db.users.create_index('email', unique=True)
+                db.users.create_index('username', unique=True)
+                app.logger.info("User indexes created successfully")
+            except Exception as e:
+                app.logger.warning(f"Some user indexes already exist: {e}")
         
         app.db = db
         
     except Exception as e:
         app.logger.error(f"Failed to connect to MongoDB: {e}")
-        raise
+        # Continue anyway - app can still serve frontend
+        app.db = None
 
     @app.route('/')
     def index():
