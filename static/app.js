@@ -1,12 +1,24 @@
 // Stellar Blog - Frontend State
 const API_URL = '/api/v1';
-let state = {
-    user: JSON.parse(localStorage.getItem('user')) || null,
-    token: localStorage.getItem('token') || null,
-    blogs: [],
-    isSearching: false,
-    blogsLoaded: false
-};
+
+// Initialize state from localStorage
+function initializeState() {
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    
+    console.log("[v0] initializeState - storedUser:", storedUser);
+    console.log("[v0] initializeState - storedToken:", storedToken ? 'exists' : 'null');
+    
+    return {
+        user: storedUser ? JSON.parse(storedUser) : null,
+        token: storedToken || null,
+        blogs: [],
+        isSearching: false,
+        blogsLoaded: false
+    };
+}
+
+let state = initializeState();
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -136,14 +148,27 @@ async function handleLogin(e) {
         console.log("[v0] User role:", data.user?.role);
         
         if (res.ok) {
+            console.log("[v0] Login successful, saving to localStorage");
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Update state
             state.token = data.token;
             state.user = data.user;
-            console.log("[v0] State updated - state.user:", state.user);
+            console.log("[v0] State updated:");
+            console.log("[v0]   state.token:", state.token ? 'set' : 'null');
+            console.log("[v0]   state.user:", state.user);
+            console.log("[v0]   state.user.role:", state.user?.role);
+            
             showToast('Logged in successfully!', 'success');
             closeModal('login-modal');
-            updateUI();
+            
+            // Call updateUI with a slight delay to ensure DOM is ready
+            setTimeout(() => {
+                console.log("[v0] Calling updateUI after login");
+                updateUI();
+            }, 100);
+            
             e.target.reset();
         } else {
             showToast(data.error || 'Login failed', 'error');
