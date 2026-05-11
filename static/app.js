@@ -3,7 +3,8 @@ const API_URL = '/api';
 let state = {
     user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
-    blogs: []
+    blogs: [],
+    isSearching: false
 };
 
 // Initialize app
@@ -62,6 +63,7 @@ function closeModal(id) {
 async function fetchBlogs(query = '') {
     const container = document.getElementById('blog-container');
     const url = query ? `${API_URL}/blogs/search?q=${encodeURIComponent(query)}` : `${API_URL}/blogs/`;
+    state.isSearching = query !== '';
     
     try {
         const res = await fetch(url);
@@ -78,7 +80,11 @@ function renderBlogs() {
     const container = document.getElementById('blog-container');
     
     if (!state.blogs || state.blogs.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><h3>No stories found matching your criteria.</h3></div>';
+        if (state.isSearching) {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><h3>No stories found matching your criteria.</h3></div>';
+        } else {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem;"><h3>Loading your stories...</h3></div>';
+        }
         return;
     }
 

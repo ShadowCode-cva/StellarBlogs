@@ -1,40 +1,111 @@
 from flask import Flask, jsonify, render_template
 from flask_cors import CORS
+from flask_caching import Cache
 from pymongo import MongoClient
 from config.settings import Config
+from utils.errors import register_error_handlers
+from utils.ratelimit import limiter
 import logging
+from logging.handlers import RotatingFileHandler
+import os
 
 def create_app():
     app = Flask(__name__)
     
-    # Initialize CORS for security
-    CORS(app)
-
-    # Setup Logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
-
     # Load configuration
     app.config.from_object(Config)
+    
+    # Initialize CORS with production settings
+    CORS(app, 
+         origins=app.config['CORS_ORIGINS'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization'],
+         supports_credentials=True)
+    
+    # Initialize Cache
+    cache = Cache(app, config={'CACHE_TYPE': app.config['CACHE_TYPE']})
+    app.cache = cache
 
-    # Initialize MongoDB client
+    # Initialize Rate Limiter
+    limiter.init_app(app)
+    
+    # Setup Advanced Logging
+    if not app.debug:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        file_handler = RotatingFileHandler('logs/stellarblogs.log', 
+                                           maxBytes=10240000, 
+                                           backupCount=10)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+    
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('StellarBlogs startup')
+
+    # Initialize MongoDB client with connection pooling
     try:
-        client = MongoClient(app.config['MONGO_URI'], serverSelectionTimeoutMS=5000)
+        client = MongoClient(
+            app.config['MONGO_URI'],
+            serverSelectionTimeoutMS=5000,
+            socketTimeoutMS=5000,
+            connectTimeoutMS=10000,
+            maxPoolSize=50,
+            minPoolSize=10
+        )
         # Test connection
         client.admin.command('ping')
-        print("Connected to MongoDB successfully!")
+        app.logger.info("Connected to MongoDB successfully!")
+        
+        # Create indexes for better query performance
+        db = client.get_database()
+        
+        # Blog indexes
+        if 'blogs' in db.list_collection_names():
+            try:
+                db.blogs.create_index('author_id')
+                db.blogs.create_index('created_at')
+                db.blogs.create_index('tags')
+                # Text search index - skip if it already exists
+                try:
+                    db.blogs.create_index([('title', 'text'), ('content', 'text')])
+                except Exception:
+                    pass  # Index already exists
+                app.logger.info("Blog indexes created successfully")
+            except Exception as e:
+                app.logger.warning(f"Some blog indexes already exist: {e}")
+        
+        # User indexes
+        if 'users' in db.list_collection_names():
+            try:
+                db.users.create_index('email', unique=True)
+                db.users.create_index('username', unique=True)
+                app.logger.info("User indexes created successfully")
+            except Exception as e:
+                app.logger.warning(f"Some user indexes already exist: {e}")
+        
+        app.db = db
+        
     except Exception as e:
-        print(f"Failed to connect to MongoDB: {e}")
-        # We still proceed to create the app, but DB operations might fail.
-
-    app.db = client.get_database()
+        app.logger.error(f"Failed to connect to MongoDB: {e}")
+        # Continue anyway - app can still serve frontend
+        app.db = None
 
     @app.route('/')
     def index():
         return render_template('index.html')
+
+    # Add Security Headers middleware
+    @app.after_request
+    def set_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+        return response
 
     # Register blueprints
     from routes.auth import auth_bp
@@ -42,24 +113,26 @@ def create_app():
     from routes.comment import comment_bp
     from routes.interaction import interaction_bp
     
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(blog_bp, url_prefix='/api/blogs')
-    app.register_blueprint(comment_bp, url_prefix='/api/comments')
-    app.register_blueprint(interaction_bp, url_prefix='/api/interactions')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(blog_bp, url_prefix='/api/v1/blogs')
+    app.register_blueprint(comment_bp, url_prefix='/api/v1/comments')
+    app.register_blueprint(interaction_bp, url_prefix='/api/v1/interactions')
 
-    @app.errorhandler(Exception)
-    def handle_exception(e):
-        # Log the error for the developer
-        app.logger.error(f"Server Error: {str(e)}")
-        # Return a clean JSON error to the user
+    # Register error handlers
+    register_error_handlers(app)
+    
+    # Health check endpoint
+    @app.route('/api/v1/health', methods=['GET'])
+    def health():
         return jsonify({
-            "status": "error",
-            "message": "An internal server error occurred. Please try again later."
-        }), 500
+            'status': 'healthy',
+            'service': 'StellarBlogs API',
+            'version': app.config['API_VERSION']
+        }), 200
 
     return app
 
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=app.config['DEBUG'])
