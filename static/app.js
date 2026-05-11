@@ -464,6 +464,10 @@ function showMyWorks() {
     showView('my-works');
 }
 
+function openFavorites() {
+    showView('favorites');
+}
+
 function showReplyForm(id) {
     const form = document.getElementById(`reply-form-${id}`);
     form.style.display = form.style.display === 'none' ? 'block' : 'none';
