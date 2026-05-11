@@ -23,13 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (view === 'my-works') fetchMyWorks();
     };
 
-    window.openModal = (id) => document.getElementById(id).classList.add('active');
-    window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
     // Close modals on outside click
     window.onclick = (event) => {
         if (event.target.classList.contains('modal')) {
-            event.target.classList.remove('active');
+            event.target.style.display = 'none';
         }
     };
 });
@@ -55,14 +55,6 @@ function updateUI() {
         authLinks.style.display = 'flex';
         userLinks.style.display = 'none';
     }
-}
-
-function openModal(id) {
-    document.getElementById(id).style.display = 'flex';
-}
-
-function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
 }
 
 // Data Fetching
