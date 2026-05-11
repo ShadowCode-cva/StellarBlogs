@@ -56,6 +56,14 @@ def get_blogs_by_author(author_id):
     response, status_code = get_blog_service().get_blogs_by_author(author_id, page=page, limit=limit)
     return jsonify(response), status_code
 
+@blog_bp.route('/author/works', methods=['GET'])
+@author_required
+def get_my_works(current_user):
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 50, type=int)
+    response, status_code = get_blog_service().get_blogs_by_author(current_user['user_id'], page=page, limit=limit)
+    return jsonify(response), status_code
+
 @blog_bp.route('/tag/<tag>', methods=['GET'])
 def get_blogs_by_tag(tag):
     page = request.args.get('page', 1, type=int)
