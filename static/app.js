@@ -17,8 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showView = (view) => {
         document.getElementById('home-view').style.display = view === 'home' ? 'block' : 'none';
         document.getElementById('favorites-view').style.display = view === 'favorites' ? 'block' : 'none';
+        document.getElementById('my-works-view').style.display = view === 'my-works' ? 'block' : 'none';
         if (view === 'favorites') fetchFavorites();
         if (view === 'home') fetchBlogs();
+        if (view === 'my-works') fetchMyWorks();
     };
 
     window.openModal = (id) => document.getElementById(id).classList.add('active');
@@ -38,6 +40,7 @@ function updateUI() {
     const userLinks = document.getElementById('user-links');
     const welcomeText = document.getElementById('welcome-text');
     const authorBtn = document.getElementById('author-btn');
+    const myWorksBtn = document.getElementById('my-works-btn');
 
     if (state.token && state.user) {
         authLinks.style.display = 'none';
@@ -45,7 +48,9 @@ function updateUI() {
         userLinks.style.alignItems = 'center';
         userLinks.style.gap = '1.5rem';
         welcomeText.innerText = `Hi, ${state.user.username}`;
-        authorBtn.style.display = state.user.role === 'author' ? 'block' : 'none';
+        const isAuthor = state.user.role === 'author';
+        authorBtn.style.display = isAuthor ? 'block' : 'none';
+        myWorksBtn.style.display = isAuthor ? 'block' : 'none';
     } else {
         authLinks.style.display = 'flex';
         userLinks.style.display = 'none';
@@ -155,9 +160,11 @@ async function handleSignup(e) {
 
         const data = await res.json();
         if (res.ok) {
-            showToast('Welcome aboard! You can now login.', 'success');
+            showToast('Welcome aboard! Please login to continue.', 'success');
             closeModal('signup-modal');
             e.target.reset();
+            // Redirect to login modal
+            setTimeout(() => openModal('login-modal'), 500);
         } else {
             showToast(data.error || 'Signup failed', 'error');
         }
@@ -369,8 +376,44 @@ async function fetchFavorites() {
     } catch (err) { console.error(err); }
 }
 
-function openFavorites() {
-    showView('favorites');
+async function fetchMyWorks() {
+    if (!state.token) return showToast('Please login to view your works', 'error');
+    
+    const container = document.getElementById('my-works-container');
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center;">Loading your works...</div>';
+    
+    try {
+        const res = await fetch(`${API_URL}/blogs/author/works`, {
+            headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        const data = await res.json();
+        
+        if (data.blogs && data.blogs.length > 0) {
+            container.innerHTML = data.blogs.map(blog => `
+                <article class="blog-card" onclick="viewBlog('${blog._id}')">
+                    <div class="blog-meta">
+                        <span class="tag">${blog.tags && blog.tags.length > 0 ? blog.tags[0] : 'General'}</span>
+                        <span>${new Date(blog.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <h3>${escapeHTML(blog.title)}</h3>
+                    <p>${escapeHTML(blog.content.substring(0, 100))}...</p>
+                    <div class="blog-meta">
+                        <span style="color: var(--primary);">Edit/Manage →</span>
+                        <span style="font-size: 0.85rem;">❤️ ${blog.likes ? blog.likes.length : 0} likes</span>
+                    </div>
+                </article>
+            `).join('');
+        } else {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem;"><h3>No Published Works Yet</h3><p style="color: var(--text-muted);">Your published posts will appear here.</p></div>';
+        }
+    } catch (err) {
+        console.error('Error fetching author works:', err);
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--accent);">Failed to load your works</div>';
+    }
+}
+
+function showMyWorks() {
+    showView('my-works');
 }
 
 function showReplyForm(id) {

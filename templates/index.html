@@ -22,6 +22,7 @@
             </div>
             <div id="user-links" style="display: none;">
                 <span id="welcome-text"></span>
+                <button onclick="showMyWorks()" id="my-works-btn" style="display: none; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); color: var(--primary);">📝 My Works</button>
                 <button onclick="openFavorites()">⭐ My Favorites</button>
                 <button onclick="openModal('create-blog-modal')" id="author-btn" style="display: none;">Create Post</button>
                 <button onclick="logout()">Logout</button>
@@ -51,6 +52,16 @@
         </div>
         <div class="blog-grid" id="favorites-container">
             <!-- Favorites will be injected here -->
+        </div>
+    </div>
+
+    <div id="my-works-view" style="display: none; padding: 4rem 5%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+            <h1>My Published Works</h1>
+            <button onclick="showView('home')" class="btn-primary">← Back to Explore</button>
+        </div>
+        <div class="blog-grid" id="my-works-container">
+            <!-- Author's works will be injected here -->
         </div>
     </div>
 
