@@ -136,11 +136,19 @@ def create_app():
     # Health check endpoint
     @app.route('/api/v1/health', methods=['GET'])
     def health():
-        return jsonify({
-            'status': 'healthy',
-            'service': 'StellarBlogs API',
-            'version': app.config['API_VERSION']
-        }), 200
+        try:
+            return jsonify({
+                'status': 'healthy',
+                'service': 'StellarBlogs API',
+                'version': app.config['API_VERSION']
+            }), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    
+    # Debug endpoint
+    @app.route('/test', methods=['GET'])
+    def test():
+        return jsonify({'message': 'App is running'}), 200
 
     return app
 
