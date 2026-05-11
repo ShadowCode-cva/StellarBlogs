@@ -144,7 +144,17 @@ def create_app():
 
     return app
 
-app = create_app()
+try:
+    app = create_app()
+except Exception as e:
+    import traceback
+    traceback.print_exc()
+    # Create a minimal app for error reporting
+    from flask import Flask, jsonify
+    app = Flask(__name__)
+    @app.route('/api/v1/health')
+    def health():
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
