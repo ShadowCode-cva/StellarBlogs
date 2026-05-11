@@ -6,9 +6,6 @@ function initializeState() {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
     
-    console.log("[v0] initializeState - storedUser:", storedUser);
-    console.log("[v0] initializeState - storedToken:", storedToken ? 'exists' : 'null');
-    
     return {
         user: storedUser ? JSON.parse(storedUser) : null,
         token: storedToken || null,
@@ -26,7 +23,6 @@ window.openModal = (id) => {
     const modal = document.getElementById(id);
     if (modal) {
         modal.style.display = 'flex';
-        console.log("[v0] openModal:", id, "displayed");
     }
 };
 
@@ -34,7 +30,6 @@ window.closeModal = (id) => {
     const modal = document.getElementById(id);
     if (modal) {
         modal.style.display = 'none';
-        console.log("[v0] closeModal:", id, "hidden");
     }
 };
 
@@ -69,32 +64,19 @@ function updateUI() {
     const authorBtn = document.getElementById('author-btn');
     const myWorksBtn = document.getElementById('my-works-btn');
 
-    console.log("[v0] updateUI called");
-    console.log("[v0] state.token:", state.token ? 'exists' : 'null');
-    console.log("[v0] state.user:", state.user);
-    console.log("[v0] state.user?.role:", state.user?.role);
-    console.log("[v0] myWorksBtn element:", myWorksBtn);
-    console.log("[v0] authorBtn element:", authorBtn);
-
     if (state.token && state.user) {
-        console.log("[v0] User authenticated!");
         authLinks.style.display = 'none';
         userLinks.style.display = 'flex';
         userLinks.style.alignItems = 'center';
         userLinks.style.gap = '1.5rem';
         welcomeText.innerText = `Hi, ${state.user.username}`;
         const isAuthor = state.user.role === 'author';
-        console.log("[v0] isAuthor:", isAuthor, "role:", state.user.role);
         authorBtn.style.display = isAuthor ? 'block' : 'none';
         myWorksBtn.style.display = isAuthor ? 'block' : 'none';
-        console.log("[v0] Set myWorksBtn.style.display to:", myWorksBtn.style.display);
-        console.log("[v0] Set authorBtn.style.display to:", authorBtn.style.display);
     } else {
-        console.log("[v0] User not authenticated");
         authLinks.style.display = 'flex';
         userLinks.style.display = 'none';
     }
-}
 }
 
 // Data Fetching
@@ -161,29 +143,18 @@ async function handleLogin(e) {
         });
 
         const data = await res.json();
-        console.log("[v0] Login response:", data);
-        console.log("[v0] User data received:", data.user);
-        console.log("[v0] User role:", data.user?.role);
         
         if (res.ok) {
-            console.log("[v0] Login successful, saving to localStorage");
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             
-            // Update state
             state.token = data.token;
             state.user = data.user;
-            console.log("[v0] State updated:");
-            console.log("[v0]   state.token:", state.token ? 'set' : 'null');
-            console.log("[v0]   state.user:", state.user);
-            console.log("[v0]   state.user.role:", state.user?.role);
             
             showToast('Logged in successfully!', 'success');
             closeModal('login-modal');
             
-            // Call updateUI with a slight delay to ensure DOM is ready
             setTimeout(() => {
-                console.log("[v0] Calling updateUI after login");
                 updateUI();
             }, 100);
             
@@ -192,17 +163,14 @@ async function handleLogin(e) {
             showToast(data.error || 'Login failed', 'error');
         }
     } catch (err) {
-        console.error("[v0] Login error:", err);
         showToast('Server error. Please try again.', 'error');
     }
 }
 
 async function handleSignup(e) {
     e.preventDefault();
-    console.log("[v0] handleSignup called");
     const formData = new FormData(e.target);
     const body = Object.fromEntries(formData);
-    console.log("[v0] Signup data:", body);
 
     try {
         const res = await fetch(`${API_URL}/auth/signup`, {
@@ -212,25 +180,18 @@ async function handleSignup(e) {
         });
 
         const data = await res.json();
-        console.log("[v0] Signup response status:", res.status, "data:", data);
         
         if (res.ok) {
-            console.log("[v0] Signup successful!");
             showToast('Welcome aboard! Please login to continue.', 'success');
             closeModal('signup-modal');
             e.target.reset();
-            // Redirect to login modal
-            console.log("[v0] Setting timeout to open login modal");
             setTimeout(() => {
-                console.log("[v0] Timeout executed - calling openModal('login-modal')");
                 openModal('login-modal');
             }, 500);
         } else {
-            console.log("[v0] Signup failed:", data.error);
             showToast(data.error || 'Signup failed', 'error');
         }
     } catch (err) {
-        console.log("[v0] Signup error:", err);
         showToast('Server error. Please try again.', 'error');
     }
 }
