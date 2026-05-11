@@ -42,6 +42,12 @@ function updateUI() {
     const authorBtn = document.getElementById('author-btn');
     const myWorksBtn = document.getElementById('my-works-btn');
 
+    console.log("[v0] updateUI called");
+    console.log("[v0] state.token:", state.token);
+    console.log("[v0] state.user:", state.user);
+    console.log("[v0] myWorksBtn element exists:", myWorksBtn !== null);
+    console.log("[v0] authorBtn element exists:", authorBtn !== null);
+
     if (state.token && state.user) {
         authLinks.style.display = 'none';
         userLinks.style.display = 'flex';
@@ -49,9 +55,13 @@ function updateUI() {
         userLinks.style.gap = '1.5rem';
         welcomeText.innerText = `Hi, ${state.user.username}`;
         const isAuthor = state.user.role === 'author';
+        console.log("[v0] User role:", state.user.role, "isAuthor:", isAuthor);
         authorBtn.style.display = isAuthor ? 'block' : 'none';
         myWorksBtn.style.display = isAuthor ? 'block' : 'none';
+        console.log("[v0] authorBtn.style.display:", authorBtn.style.display);
+        console.log("[v0] myWorksBtn.style.display:", myWorksBtn.style.display);
     } else {
+        console.log("[v0] User not authenticated, hiding user links");
         authLinks.style.display = 'flex';
         userLinks.style.display = 'none';
     }
@@ -121,11 +131,16 @@ async function handleLogin(e) {
         });
 
         const data = await res.json();
+        console.log("[v0] Login response:", data);
+        console.log("[v0] User data received:", data.user);
+        console.log("[v0] User role:", data.user?.role);
+        
         if (res.ok) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             state.token = data.token;
             state.user = data.user;
+            console.log("[v0] State updated - state.user:", state.user);
             showToast('Logged in successfully!', 'success');
             closeModal('login-modal');
             updateUI();
@@ -134,6 +149,7 @@ async function handleLogin(e) {
             showToast(data.error || 'Login failed', 'error');
         }
     } catch (err) {
+        console.error("[v0] Login error:", err);
         showToast('Server error. Please try again.', 'error');
     }
 }
