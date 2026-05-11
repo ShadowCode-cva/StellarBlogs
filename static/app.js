@@ -70,28 +70,31 @@ function updateUI() {
     const myWorksBtn = document.getElementById('my-works-btn');
 
     console.log("[v0] updateUI called");
-    console.log("[v0] state.token:", state.token);
+    console.log("[v0] state.token:", state.token ? 'exists' : 'null');
     console.log("[v0] state.user:", state.user);
-    console.log("[v0] myWorksBtn element exists:", myWorksBtn !== null);
-    console.log("[v0] authorBtn element exists:", authorBtn !== null);
+    console.log("[v0] state.user?.role:", state.user?.role);
+    console.log("[v0] myWorksBtn element:", myWorksBtn);
+    console.log("[v0] authorBtn element:", authorBtn);
 
     if (state.token && state.user) {
+        console.log("[v0] User authenticated!");
         authLinks.style.display = 'none';
         userLinks.style.display = 'flex';
         userLinks.style.alignItems = 'center';
         userLinks.style.gap = '1.5rem';
         welcomeText.innerText = `Hi, ${state.user.username}`;
         const isAuthor = state.user.role === 'author';
-        console.log("[v0] User role:", state.user.role, "isAuthor:", isAuthor);
+        console.log("[v0] isAuthor:", isAuthor, "role:", state.user.role);
         authorBtn.style.display = isAuthor ? 'block' : 'none';
         myWorksBtn.style.display = isAuthor ? 'block' : 'none';
-        console.log("[v0] authorBtn.style.display:", authorBtn.style.display);
-        console.log("[v0] myWorksBtn.style.display:", myWorksBtn.style.display);
+        console.log("[v0] Set myWorksBtn.style.display to:", myWorksBtn.style.display);
+        console.log("[v0] Set authorBtn.style.display to:", authorBtn.style.display);
     } else {
-        console.log("[v0] User not authenticated, hiding user links");
+        console.log("[v0] User not authenticated");
         authLinks.style.display = 'flex';
         userLinks.style.display = 'none';
     }
+}
 }
 
 // Data Fetching
@@ -196,8 +199,10 @@ async function handleLogin(e) {
 
 async function handleSignup(e) {
     e.preventDefault();
+    console.log("[v0] handleSignup called");
     const formData = new FormData(e.target);
     const body = Object.fromEntries(formData);
+    console.log("[v0] Signup data:", body);
 
     try {
         const res = await fetch(`${API_URL}/auth/signup`, {
@@ -207,16 +212,25 @@ async function handleSignup(e) {
         });
 
         const data = await res.json();
+        console.log("[v0] Signup response status:", res.status, "data:", data);
+        
         if (res.ok) {
+            console.log("[v0] Signup successful!");
             showToast('Welcome aboard! Please login to continue.', 'success');
             closeModal('signup-modal');
             e.target.reset();
             // Redirect to login modal
-            setTimeout(() => openModal('login-modal'), 500);
+            console.log("[v0] Setting timeout to open login modal");
+            setTimeout(() => {
+                console.log("[v0] Timeout executed - calling openModal('login-modal')");
+                openModal('login-modal');
+            }, 500);
         } else {
+            console.log("[v0] Signup failed:", data.error);
             showToast(data.error || 'Signup failed', 'error');
         }
     } catch (err) {
+        console.log("[v0] Signup error:", err);
         showToast('Server error. Please try again.', 'error');
     }
 }
@@ -462,6 +476,10 @@ async function fetchMyWorks() {
 
 function showMyWorks() {
     showView('my-works');
+}
+
+function openFavorites() {
+    showView('favorites');
 }
 
 function showReplyForm(id) {
