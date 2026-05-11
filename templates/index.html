@@ -22,10 +22,10 @@
             </div>
             <div id="user-links" style="display: none;">
                 <span id="welcome-text"></span>
-                <button onclick="showMyWorks()" id="my-works-btn" style="display: none; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); color: var(--primary);">📝 My Works</button>
-                <button onclick="openFavorites()">⭐ My Favorites</button>
-                <button onclick="openModal('create-blog-modal')" id="author-btn" style="display: none;">Create Post</button>
-                <button onclick="logout()">Logout</button>
+                <button onclick="showMyWorks()" id="my-works-btn" class="nav-btn nav-btn-primary" style="display: none;"><i class="fas fa-feather-alt"></i> My Works</button>
+                <button onclick="openFavorites()" class="nav-btn"><i class="fas fa-bookmark"></i> Favorites</button>
+                <button onclick="openModal('create-blog-modal')" id="author-btn" class="nav-btn nav-btn-primary" style="display: none;"><i class="fas fa-plus"></i> Create</button>
+                <button onclick="logout()" class="nav-btn">Logout</button>
             </div>
         </div>
     </nav>
@@ -79,9 +79,11 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <div class="password-container">
-                        <input type="password" name="password" id="signup-password" required>
-                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('signup-password', this)"></i>
+                    <div class="password-input-wrapper">
+                        <input type="password" name="password" id="login-password" class="password-input" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('login-password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
                 <button type="submit" class="btn-primary" style="width: 100%;">Sign In</button>
@@ -106,9 +108,11 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <div class="password-container">
-                        <input type="password" name="password" id="login-password" required>
-                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('login-password', this)"></i>
+                    <div class="password-input-wrapper">
+                        <input type="password" name="password" id="signup-password" class="password-input" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('signup-password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="form-group">

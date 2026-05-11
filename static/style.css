@@ -99,6 +99,37 @@ nav {
 
 .nav-links button:hover, .nav-links a:hover { opacity: 1; color: var(--text-main); }
 
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    border: 1px solid transparent;
+    opacity: 1;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--glass-border);
+}
+
+.nav-btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, rgba(99, 102, 241, 0.8) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.5);
+    color: white;
+    box-shadow: 0 8px 20px -6px var(--primary-glow);
+}
+
+.nav-btn-primary:hover {
+    background: linear-gradient(135deg, #5b5fef 0%, #4f52d9 100%);
+    box-shadow: 0 12px 25px -8px var(--primary-glow);
+    transform: translateY(-2px);
+}
+
 .btn-primary {
     background: var(--primary) !important;
     padding: 0.7rem 1.5rem; /* Balanced 1:2.1 ratio */
@@ -198,6 +229,37 @@ nav {
 .blog-card p { color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* Form Elements & Visibility Toggle */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input {
+    padding-right: 3rem !important;
+    width: 100%;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 1.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    padding: 0.5rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
 .password-container {
     position: relative;
 }
